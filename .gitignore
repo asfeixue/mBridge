@@ -9,4 +9,6 @@ mBridge-service/mBridge-service.iml
 mBridge-util/mBridge-util.iml
 mBridge-web/build/
 mBridge-web/mBridge-web.iml
+mBridge-web/src/main/resources/server.properties
 mBridge.iml
+build/
