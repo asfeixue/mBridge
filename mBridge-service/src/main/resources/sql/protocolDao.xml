@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.ProtocolDao">
+
+    <!-- 获取指定协议信息 -->
+    <select id="getProtocolInfo" parameterType="object" resultType="HttpProtocolDO">
+        SELECT * FROM mbridge_protocol
+        WHERE urlPath = #{urlPath}
+        AND systemCode = #{systemCode}
+    </select>
+
+    <!-- 保存协议 -->
+    <insert id="addProtocol" parameterType="HttpProtocolDO" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT IGNORE INTO mbridge_protocol (
+          urlPath,
+          urlDesc,
+          contentType,
+          paramList,
+          pathList,
+          requestType,
+          requestBody,
+          responseBody,
+          requestHeader,
+          requestHeaderSubscribe,
+          responseHeader,
+          responseHeaderSubscribe,
+          systemCode,
+          dispute
+        ) VALUES (
+          #{urlPath},
+          #{urlDesc},
+          #{contentType},
+          #{paramList},
+          #{pathList},
+          #{requestType},
+          #{requestBody},
+          #{responseBody},
+          #{requestHeader},
+          #{requestHeaderSubscribe},
+          #{responseHeader},
+          #{responseHeaderSubscribe},
+          #{systemCode},
+          #{dispute}
+        );
+    </insert>
+
+    <!-- 更新指定id的协议信息 -->
+    <update id="updateProtocol" parameterType="HttpProtocolDO">
+        UPDATE mbridge_protocol SET
+          urlPath = #{urlPath},
+          urlDesc = #{urlDesc},
+          contentType = #{contentType},
+          paramList = #{paramList},
+          pathList = #{pathList},
+          requestType = #{requestType},
+          requestBody = #{requestBody},
+          responseBody = #{responseBody},
+          requestHeader = #{requestHeader},
+          requestHeaderSubscribe = #{requestHeaderSubscribe},
+          responseHeader = #{responseHeader},
+          responseHeaderSubscribe = #{responseHeaderSubscribe},
+          systemCode = #{systemCode},
+          dispute = #{dispute}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 获取Protocol -->
+    <select id="getProtocol" parameterType="_long" resultType="HttpProtocolDO">
+        SELECT
+          *
+        FROM
+          mbridge_protocol
+        WHERE
+          id=#{id};
+    </select>
+
+    <!-- 获取合适条件下的协议集合 -->
+    <select id="getProtocols" parameterType="object" resultType="HttpProtocolDO">
+        SELECT
+          *
+        FROM
+          mbridge_protocol
+        <where>
+            <if test="systemCode != null">
+                systemCode = #{systemCode}
+            </if>
+            <if test="url != null and url != ''">
+                AND urlPath LIKE "%" #{url} "%"
+            </if>
+        </where>
+        LIMIT #{page}, #{length};
+    </select>
+
+    <!-- 获取合适条件下的协议数目 -->
+    <select id="getProtocolSize" parameterType="object" resultType="_long">
+        SELECT
+          COUNT(*)
+        FROM
+          mbridge_protocol
+        <where>
+            <if test="systemCode != null">
+                systemCode = #{systemCode}
+            </if>
+            <if test="url != null and url != ''">
+                AND urlPath LIKE #{url}
+            </if>
+        </where>
+    </select>
+
+    <!-- 删除指定协议 -->
+    <delete id="delProtocol" parameterType="_long">
+        DELETE FROM
+          mbridge_protocol
+        WHERE
+          id=#{protocolId};
+    </delete>
+    
+    <!-- 删除指定协议的测试报告 -->
+    <delete id="delProtocolTestReport" parameterType="_long">
+        DELETE FROM
+          mbridge_test_report
+        WHERE
+          protocolId=#{protocolId};
+    </delete>
+</mapper>

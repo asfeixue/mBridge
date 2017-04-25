@@ -1,0 +1,5 @@
+dependencies {
+    compile project(":mBridge-meta")
+    compile 'javassist:javassist:3.12.1.GA'
+    compile group: 'com.google.guava', name: 'guava', version: '19.0'
+}

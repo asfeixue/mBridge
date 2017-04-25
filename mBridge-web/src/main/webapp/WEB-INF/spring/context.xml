@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean class="com.feixue.mbridge.resolver.JSONExceptionResolver"/>
+
+    <import resource="classpath*:spring/*.xml"/>
+
+    <util:properties id="server" location="classpath:server.properties"/>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location">
+            <value>classpath:server.properties</value>
+        </property>
+    </bean>
+
+    <bean id="mbridgeScan" class="com.feixue.mbridge.scan.MbridgeScan">
+        <property name="scanPath" value="com.feixue.mbridge.controller"/>
+        <property name="filePath" value="${filePath}"/>
+        <property name="systemCode" value="${systemCode}"/>
+        <property name="scanSwitch" value="${scanSwitch}"/>
+    </bean>
+</beans>

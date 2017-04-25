@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.TestReportDao">
+
+    <!-- 保存测试结果 -->
+    <insert id="addTestReport" parameterType="TestReportDO">
+        INSERT INTO mbridge_test_report(
+            protocolId,
+            systemCode,
+            statusCode,
+            requestInfo,
+            requestHeader,
+            requestContentType,
+            requestParam,
+            requestBody,
+            responseHeader,
+            responseBody,
+            redirectUrl,
+            mockRequestInfo,
+            mockRequestHeader,
+            mockRequestParam,
+            mockRequestBody,
+            mockResponseHeader,
+            mockResponseBody,
+            checkReport,
+            testType,
+            testResult
+        ) VALUES (
+            #{protocolId},
+            #{systemCode},
+            #{statusCode},
+            #{requestInfo},
+            #{requestHeader},
+            #{requestContentType},
+            #{requestParam},
+            #{requestBody},
+            #{responseHeader},
+            #{responseBody},
+            #{redirectUrl},
+            #{mockRequestInfo},
+            #{mockRequestHeader},
+            #{mockRequestParam},
+            #{mockRequestBody},
+            #{mockResponseHeader},
+            #{mockResponseBody},
+            #{checkReport},
+            #{testType},
+            #{testResult}
+        );
+    </insert>
+
+    <!-- 获取客户端请求数量 -->
+    <select id="getClientHistorySize" parameterType="_long" resultType="_long">
+        SELECT count(*) FROM mbridge_test_report WHERE testType = 'client'
+        AND protocolId = #{protocolId}
+    </select>
+
+    <!-- 获取客户端请求分页数据 -->
+    <select id="getClientHistoryPageInfo" parameterType="object" resultType="TestReportDO">
+        SELECT * FROM mbridge_test_report WHERE testType = 'client'
+        AND protocolId = #{protocolId}
+        order BY gmtCreate DESC
+        limit #{pageStart}, #{length}
+    </select>
+
+    <!-- 获取指定协议服务端测试数量 -->
+    <select id="getServerHistorySize" parameterType="_long" resultType="_long">
+        SELECT COUNT(*) FROM mbridge_test_report WHERE testType = 'server'
+        AND protocolId = #{protocolId}
+    </select>
+
+    <!-- 获取指定协议服务端测试分页数据 -->
+    <select id="getServerHistoryPageInfo" parameterType="object" resultType="TestReportDO">
+        SELECT * FROM mbridge_test_report WHERE testType = 'server'
+        AND protocolId = #{protocolId}
+        order BY gmtCreate DESC
+        limit #{pageStart}, #{length}
+    </select>
+
+    <!-- 删除协议清除后残留的测试报告 -->
+    <delete id="delNoProtcolTestReport">
+        DELETE FROM mbridge_test_report
+        WHERE protocolId NOT IN (SELECT id
+        FROM mbridge_protocol
+        GROUP BY id);
+    </delete>
+
+    <!-- 获取满足保留条件下的最小测试报告编号 -->
+    <select id="getTestReportMinId" parameterType="MockRequestDO" resultType="TestReportDO">
+        SELECT min(id) as id,protocolId FROM (
+            SELECT
+              *
+            FROM
+              mbridge_test_report
+            WHERE
+              protocolId = #{protocolId}
+            AND testType = 'server'
+            ORDER BY id desc
+              LIMIT #{keepReport}
+        ) x;
+    </select>
+
+    <!-- 清理多余的测试报告 -->
+    <delete id="cleanTestReport" parameterType="TestReportDO">
+        DELETE FROM
+          mbridge_test_report
+        WHERE
+          protocolId = #{protocolId}
+        AND testType = 'server'
+        <![CDATA[
+          AND id < #{id};
+        ]]>
+    </delete>
+
+    <!-- 获取指定协议服务端测试最新测试报告 -->
+    <select id="getTestReportLast" parameterType="object" resultType="TestReportDO">
+        SELECT * FROM mbridge_test_report
+        WHERE
+          protocolId = #{protocolId}
+        AND testType = #{testType}
+        ORDER BY id desc
+        limit 1
+    </select>
+</mapper>

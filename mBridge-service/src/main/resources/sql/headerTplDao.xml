@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.HeaderTplDao">
+
+    <!-- 添加header模板 -->
+    <insert id="addHeaderTpl" parameterType="HeaderTplDO">
+        INSERT INTO mbridge_template_header(
+            tplValue,
+            tplDesc
+        ) VALUES (
+            #{tplValue},
+            #{tplDesc}
+        )
+    </insert>
+
+    <!-- 获取header模板总记录数 -->
+    <select id="getHeaderTplSize" resultType="_int">
+        SELECT count(*) FROM mbridge_template_header
+    </select>
+
+    <!-- 获取header模板分页数据 -->
+    <select id="getHeaderTplPage" parameterType="_int" resultType="HeaderTplDO">
+        SELECT * FROM mbridge_template_header
+        limit #{pageStart}, #{pageLength}
+    </select>
+
+    <!-- 删除指定的模板 -->
+    <delete id="delTpl" parameterType="HeaderTplDO">
+        DELETE FROM mbridge_template_header WHERE id = #{id}
+    </delete>
+
+    <!-- 更新模板内容 -->
+    <update id="updateTpl" parameterType="HeaderTplDO">
+        UPDATE mbridge_template_header
+        SET
+            tplValue = #{tplValue},
+            tplDesc = #{tplDesc}
+        WHERE
+            id= #{id}
+    </update>
+
+    <!-- 查询指定编号的模板 -->
+    <select id="getTplById" parameterType="_long" resultType="HeaderTplDO">
+        SELECT * FROM mbridge_template_header WHERE id = #{id}
+    </select>
+</mapper>

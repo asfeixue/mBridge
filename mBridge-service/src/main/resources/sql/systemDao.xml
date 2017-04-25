@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.SystemDao">
+
+    <!-- 获取指定系统的环境数目 -->
+    <select id="getServerEnvSize" parameterType="string" resultType="_long">
+        SELECT
+          count(*)
+        FROM
+          mbridge_env
+        <where>
+            <if test="systemCode != null and systemCode != ''">
+                AND systemCode LIKE "%" #{systemCode} "%"
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取指定系统的环境信息 -->
+    <select id="getServerEnvPage" parameterType="object" resultType="SystemEnvDO">
+        SELECT
+          *
+        FROM
+          mbridge_env
+        <where>
+            <if test="systemCode != null and systemCode != ''">
+                AND systemCode LIKE "%" #{systemCode} "%"
+            </if>
+        </where>
+        ORDER BY gmtCreate DESC
+        limit #{pageStart}, #{pageLength}
+    </select>
+
+    <!-- 添加指定系统的环境信息 -->
+    <insert id="addServerEnv" parameterType="SystemEnvDO">
+        INSERT INTO mbridge_env (
+            systemCode,
+            envName,
+            envAddress
+        ) VALUES (
+            #{systemCode},
+            #{envName},
+            #{envAddress}
+        )
+    </insert>
+
+    <!-- 删除指定系统的环境信息 -->
+    <delete id="delSystemEnv" parameterType="_long">
+        DELETE FROM mbridge_env WHERE id = #{id}
+    </delete>
+
+    <!-- 更新指定系统的环境信息 -->
+    <update id="updateServerEnv" parameterType="SystemEnvDO">
+        UPDATE mbridge_env SET
+          envName = #{envName},
+          envAddress = #{envAddress}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 获取指定id的env信息 -->
+    <select id="getEnvById" parameterType="_long" resultType="SystemEnvDO">
+        SELECT * FROM mbridge_env WHERE id = #{id}
+    </select>
+
+    <!-- 添加系统 -->
+    <insert id="addSystem" parameterType="SystemDO">
+        INSERT ignore INTO mbridge_system(
+          systemName,
+          systemCode
+        ) VALUES (
+          #{systemName},
+          #{systemCode}
+        )
+    </insert>
+
+    <!-- 更新系统信息 -->
+    <update id="updateSystem" parameterType="SystemDO">
+        UPDATE mbridge_system
+        SET
+          systemName = #{systemName}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除系统 -->
+    <delete id="delSystem" parameterType="string">
+        DELETE FROM mbridge_system WHERE systemCode = #{systemCode}
+    </delete>
+
+    <!-- 查询指定code的系统信息 -->
+    <select id="querySystem" parameterType="string" resultType="SystemDO">
+        SELECT * FROM mbridge_system WHERE systemCode = #{systemCode}
+    </select>
+
+    <!-- 获取指定系统协议数目 -->
+    <select id="getSystemProtocols" parameterType="string" resultType="_int">
+        SELECT COUNT(*) FROM mbridge_protocol WHERE systemCode = #{systemCode}
+    </select>
+
+    <!-- 获取系统数目 -->
+    <select id="getSystemSize" parameterType="string" resultType="_long">
+        SELECT count(*) from mbridge_system
+        <where>
+            <if test="systemCode != null and systemCode != ''">
+                systemCode LIKE "%" #{systemCode} "%"
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取指定page的系统信息 -->
+    <select id="getSystemPage" parameterType="object" resultType="SystemDO">
+        SELECT * FROM mbridge_system
+        <where>
+            <if test="systemCode != null and systemCode != ''">
+                systemCode LIKE "%" #{systemCode} "%"
+            </if>
+        </where>
+        ORDER BY gmtCreate DESC
+        limit #{pageStart}, #{pageLength}
+    </select>
+
+    <!-- 获取所有系统列表 -->
+    <select id="getSystemList" resultType="SystemDO">
+        SELECT * FROM mbridge_system
+    </select>
+</mapper>

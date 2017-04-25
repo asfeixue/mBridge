@@ -1,0 +1,35 @@
+dependencies {
+    compile project(":mBridge-util")
+    compile project(":mBridge-domain")
+
+    compile "com.alibaba:druid:${druidVersion}"
+    compile "mysql:mysql-connector-java:${mysqlVersion}"
+
+    compile 'ch.qos.logback:logback-classic:1.1.3'
+
+    compile "org.mybatis:mybatis-spring:1.2.+"
+    compile "org.mybatis:mybatis:3.2.+"
+
+    compile 'org.apache.httpcomponents:fluent-hc:4.5.1'
+    compile 'commons-collections:commons-collections:3.2.2'
+
+    compile "org.eclipse.jetty:jetty-server:${jettyVersion}"
+
+    compile ("com.alibaba:dubbo:2.5.3") {
+        exclude group:'org.springframework', module: 'spring'
+    }
+
+    compile ("org.apache.zookeeper:zookeeper:3.4.6") {
+        exclude group:'junit', module: 'junit'
+        exclude group:'io.netty', module: 'netty'
+        exclude group:'org.slf4j', module: '*'
+        exclude group:'jline', module: 'jline'
+        exclude group:'log4j', module:'log4j'
+    }
+
+    compile ('com.101tec:zkclient:0.7') {
+        exclude group:'org.apache.zookeeper', module: 'zookeeper'
+        exclude group:'log4j', module:'log4j'
+        exclude group:'org.slf4j', module:'*'
+    }
+}

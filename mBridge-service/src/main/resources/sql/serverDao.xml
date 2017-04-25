@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.ServerDao">
+
+    <!-- 获取满足要求的mock server数目 -->
+    <select id="queryServerSize" parameterType="string" resultType="_long">
+        SELECT count(*) FROM mbridge_server
+        <where>
+            <if test="systemCode != null and systemCode != ''">
+                systemCode = #{systemCode}
+            </if>
+        </where>
+    </select>
+
+    <!-- 获取满足要求的mock server分页数据 -->
+    <select id="queryServerPage" parameterType="object" resultType="ServerDO">
+        SELECT * FROM mbridge_server
+        <where>
+            <if test="systemCode != null and systemCode != ''">
+                systemCode = #{systemCode}
+            </if>
+        </where>
+        limit #{pageStart}, #{pageLength}
+    </select>
+
+    <!-- 新增mock server -->
+    <insert id="addServer" parameterType="ServerDO">
+        INSERT INTO mbridge_server(
+          systemCode,
+          serverPort
+        ) VALUES (
+          #{systemCode},
+          #{serverPort}
+        );
+    </insert>
+
+    <!-- 删除mock server -->
+    <delete id="delServer" parameterType="_long">
+        DELETE FROM mbridge_server
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 获取指定id的Server对象 -->
+    <select id="queryServerById" parameterType="_long" resultType="ServerDO">
+        SELECT * FROM mbridge_server WHERE id = #{id}
+    </select>
+
+    <!-- 更新mock server -->
+    <update id="updateServer" parameterType="ServerDO">
+        UPDATE mbridge_server
+        SET
+          systemCode = #{systemCode},
+          serverPort = #{serverPort},
+          serverStatus = #{serverStatus},
+          serverMsg = #{serverMsg}
+        WHERE id = #{id}
+    </update>
+</mapper>

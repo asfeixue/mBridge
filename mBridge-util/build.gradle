@@ -1,0 +1,5 @@
+dependencies {
+    compile('org.quartz-scheduler:quartz:2.2.1') {
+        exclude group: 'c3p0', module: 'c3p0'
+    }
+}

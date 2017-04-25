@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.BodyDao">
+
+    <!-- 获取指定协议的当前响应 -->
+    <select id="getProtocolNowResponse" parameterType="_long" resultType="MockResponseDO">
+        SELECT * FROM mbridge_mock_response WHERE protocolId = #{protocolId}
+        AND isNow = 1
+    </select>
+
+    <!-- 更新指定id为当前mock responseBody -->
+    <update id="updateMockResponseNow" parameterType="object">
+        UPDATE mbridge_mock_response SET isNow = #{isNow} WHERE id = #{id}
+    </update>
+
+    <!-- 更新指定protocolId的mock responseBody都不为当前响应 -->
+    <update id="updateProtocolMockResponseIsNotNow" parameterType="_long">
+        UPDATE mbridge_mock_response SET isNow = 0 WHERE protocolId = #{protocolId}
+    </update>
+
+    <!-- 新增mock response记录 -->
+    <insert id="addMockResponse" parameterType="MockResponseDO">
+        INSERT INTO mbridge_mock_response(
+            protocolId,
+            body,
+            header,
+            headerSubscribe,
+            isNow,
+            mockDesc
+        ) VALUES (
+            #{protocolId},
+            #{body},
+            #{header},
+            #{headerSubscribe},
+            #{isNow},
+            #{mockDesc}
+        );
+    </insert>
+
+    <!-- 更新指定编号的模拟响应 -->
+    <update id="updateMockResponseById" parameterType="MockResponseDO">
+        UPDATE mbridge_mock_response
+        SET
+            body=#{body},
+            header=#{header},
+            headerSubscribe=#{headerSubscribe},
+            isNow=#{isNow},
+            mockDesc=#{mockDesc}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 删除指定编号的mock response body -->
+    <delete id="delMockResponseBody" parameterType="_long">
+        DELETE FROM mbridge_mock_response WHERE id = #{id}
+    </delete>
+
+    <!-- 获取指定协议的mock responseBody数量 -->
+    <select id="getMockResponseSize" parameterType="_long" resultType="_long">
+        SELECT
+            count(*)
+        FROM mbridge_mock_response
+        WHERE protocolId = #{protocolId}
+        AND isNow = 0
+    </select>
+
+    <!-- 获取指定协议的mock responseBody分页数据 -->
+    <select id="getMockResponsePage" parameterType="object" resultType="MockResponseDO">
+        SELECT
+            *
+        FROM mbridge_mock_response
+        WHERE protocolId = #{protocolId}
+        AND isNow = 0
+        ORDER BY gmtCreate DESC
+        limit #{pageStart}, #{pageLength}
+    </select>
+
+    <!-- 添加request mock -->
+    <insert id="addRequestMock" parameterType="MockRequestDO">
+        INSERT INTO mbridge_mock_request (
+            protocolId,
+            requestHeader,
+            requestHeaderSubscribe,
+            paramList,
+            requestBody,
+            systemCode,
+            schedulePlan,
+            isScheduler,
+            keepReport,
+            supportEnv,
+            mockDesc
+        )VALUES (
+            #{protocolId},
+            #{requestHeader},
+            #{requestHeaderSubscribe},
+            #{paramList},
+            #{requestBody},
+            #{systemCode},
+            #{schedulePlan},
+            #{isScheduler},
+            #{keepReport},
+            #{supportEnv},
+            #{mockDesc}
+        )
+    </insert>
+
+    <!-- 删除指定id的request mock -->
+    <delete id="delRequestMock" parameterType="_long">
+        DELETE FROM mbridge_mock_request WHERE id = #{id}
+    </delete>
+
+    <!-- 获取指定id的request mock -->
+    <select id="getRequestMockById" parameterType="_long" resultType="MockRequestDO">
+        SELECT * FROM mbridge_mock_request WHERE id = #{id}
+    </select>
+
+    <!-- 更新指定id的request mock -->
+    <update id="updateRequestMock" parameterType="MockRequestDO">
+        UPDATE mbridge_mock_request SET
+            requestHeader = #{requestHeader},
+            requestHeaderSubscribe = #{requestHeaderSubscribe},
+            paramList = #{paramList},
+            requestBody = #{requestBody},
+            systemCode = #{systemCode},
+            schedulePlan = #{schedulePlan},
+            isScheduler = #{isScheduler},
+            keepReport = #{keepReport},
+            supportEnv = #{supportEnv},
+            mockDesc = #{mockDesc}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 获取指定协议的request mock集合 -->
+    <select id="getRequestMockByProtocolId" parameterType="_long" resultType="MockRequestDO">
+        SELECT * FROM mbridge_mock_request WHERE protocolId = #{protocolId}
+    </select>
+
+    <!-- 删除指定协议id的request mock -->
+    <delete id="delRequestMockByProtocolId" parameterType="_long">
+        DELETE FROM mbridge_mock_request WHERE protocolId = #{protocolId}
+    </delete>
+
+    <!-- 获取所有request mock协议 -->
+    <select id="getAllRequestMock" resultType="MockRequestDO">
+        SELECT * FROM mbridge_mock_request;
+    </select>
+
+    <!-- 获取指定协议的request mock数量 -->
+    <select id="getRequestMockByProtocolIdSize" parameterType="_long" resultType="_long">
+        SELECT COUNT(*) FROM mbridge_mock_request WHERE protocolId = #{protocolId}
+    </select>
+
+    <!-- 获取指定协议的request mock分页数据 -->
+    <select id="getRequestMockByProtocolIdPage" parameterType="object" resultType="MockRequestDO">
+        SELECT * FROM mbridge_mock_request WHERE protocolId = #{protocolId} limit #{pageStart}, #{pageLength}
+    </select>
+</mapper>

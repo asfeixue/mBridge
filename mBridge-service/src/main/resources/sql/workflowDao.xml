@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.WorkflowDao">
+
+    <!-- 查询指定任务流id的信息 -->
+    <select id="queryFlow" parameterType="_long" resultType="WorkflowDO">
+        SELECT * from mbridge_workflow WHERE id = #{id}
+    </select>
+
+    <!-- 查询任务流总记录数 -->
+    <select id="queryFlowSize" resultType="_long">
+        SELECT count(*) FROM mbridge_workflow;
+    </select>
+
+    <!-- 查询分页任务流记录 -->
+    <select id="queryFlowPage" parameterType="object" resultType="WorkflowDO">
+        SELECT * FROM mbridge_workflow limit #{start}, #{length}
+    </select>
+
+    <!-- 查询指定任务流的所有节点信息 -->
+    <select id="queryFlowNodes" parameterType="_long" resultType="LinkNodeDO">
+        SELECT * FROM  mbridge_workflow_node WHERE flowId = #{flowId} ORDER BY id ASC
+    </select>
+
+    <!-- 新增任务流信息 -->
+    <insert id="addWorkflow" parameterType="WorkflowDO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO mbridge_workflow(flowDesc) VALUES (#{flowDesc})
+    </insert>
+
+    <!-- 更新任务流信息 -->
+    <update id="updateWorkflow" parameterType="WorkflowDO">
+        UPDATE mbridge_workflow SET flowDesc = #{flowDesc} WHERE id = #{id}
+    </update>
+
+    <!-- 新增任务节点信息 -->
+    <insert id="addFlowNode" parameterType="LinkNodeDO">
+        INSERT INTO mbridge_workflow_node(
+            flowId,
+            headerScript,
+            protocolId,
+            envId,
+            endScript
+        ) VALUES (
+            #{flowId},
+            #{headerScript},
+            #{protocolId},
+            #{envId},
+            #{endScript}
+        )
+    </insert>
+
+    <!-- 更新任务节点信息 -->
+    <update id="updateFlowNode" parameterType="LinkNodeDO">
+        UPDATE mbridge_workflow_node
+        SET
+            headerScript = #{headerScript},
+            protocolId = #{protocolId},
+            envId = #{envId},
+            endScript = #{endScript}
+        WHERE
+            flowId = #{flowId}
+        AND id = #{id}
+    </update>
+
+    <!-- 删除指定的任务流 -->
+    <delete id="delWorkflowById" parameterType="_long">
+        DELETE FROM mbridge_workflow WHERE id = #{id}
+    </delete>
+
+    <!-- 删除指定任务流的节点 -->
+    <delete id="delWorkflowNodeByFlowId" parameterType="_long">
+        DELETE FROM mbridge_workflow_node WHERE flowId = #{flowId}
+    </delete>
+</mapper>

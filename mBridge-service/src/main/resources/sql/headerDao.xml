@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.feixue.mbridge.dao.HeaderDao">
+
+    <!-- 获取协议约定header -->
+    <select id="getProtocolHeaders" parameterType="_long" resultType="HttpProtocolDO">
+        SELECT
+          *
+        FROM
+          mbridge_protocol
+        WHERE id = #{protocolId};
+    </select>
+
+    <!-- 更新协议约定header -->
+    <update id="updateProtocolHeaders" parameterType="object">
+        UPDATE
+          mbridge_protocol
+        SET
+          <if test="index == 0">
+              requestHeader = #{header},
+              requestHeaderSubscribe = #{headerId}
+          </if>
+          <if test="index == 1">
+              responseHeader = #{header},
+              responseHeaderSubscribe = #{headerId}
+          </if>
+        WHERE
+          id = #{protocolId};
+    </update>
+</mapper>
