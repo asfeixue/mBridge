@@ -1,0 +1,12 @@
+
+.gitignore
+.gradle/
+.idea/
+mBridge-domain/mBridge-domain.iml
+mBridge-meta/mBridge-meta.iml
+mBridge-scan/mBridge-scan.iml
+mBridge-service/mBridge-service.iml
+mBridge-util/mBridge-util.iml
+mBridge-web/build/
+mBridge-web/mBridge-web.iml
+mBridge.iml
