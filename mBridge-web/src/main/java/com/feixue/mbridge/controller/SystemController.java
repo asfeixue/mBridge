@@ -1,5 +1,6 @@
 package com.feixue.mbridge.controller;
 
+import com.feixue.mbridge.domain.system.SystemVO;
 import com.feixue.mbridge.meta.annotation.RESTfulDoc;
 import com.feixue.mbridge.domain.*;
 import com.feixue.mbridge.domain.system.SystemEnvDO;
@@ -22,38 +23,11 @@ public class SystemController {
     @Resource
     private SystemService systemService;
 
-    @RESTfulDoc("获取指定系统的环境信息")
-    @RequestMapping(value = "/env/query", method = RequestMethod.GET)
-    @ResponseBody
-    public HttpResponse<TablePageVO<List<SystemEnvVO>>> getSystemEnv(
-            @RequestParam String systemCode, @RequestParam int page, @RequestParam int length) {
-        return new HttpResponse<>(systemService.getSystemEnv(systemCode, page, length));
-    }
-
-    @RESTfulDoc("添加指定系统的环境信息")
-    @RequestMapping(value = "/env/del", method = RequestMethod.DELETE)
-    @ResponseBody
-    public HttpResponse delSystemEnv(@RequestParam long id) {
-        BusinessWrapper<Boolean> wrapper = systemService.delSystemEnv(id);
-        if (wrapper.isSuccess()) {
-            return new HttpResponse(wrapper.getBody());
-        } else {
-            return new HttpResponse(wrapper.getCode(), wrapper.getMsg());
-        }
-    }
-
-    @RESTfulDoc("新增 or 更新指定系统的环境信息")
-    @RequestMapping(value = "/env/save", method = RequestMethod.POST)
-    @ResponseBody
-    public HttpResponse updateSystemEnv(@RequestBody SystemEnvDO systemEnvDO) {
-        return new HttpResponse(systemService.saveSystemEnv(systemEnvDO));
-    }
-
     @RESTfulDoc("保存 or 更新系统")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
-    public HttpResponse saveSystem(@RequestBody SystemDO systemDO) {
-        BusinessWrapper<Boolean> wrapper = systemService.saveSystem(systemDO);
+    public HttpResponse saveSystem(@RequestBody SystemVO systemVO) {
+        BusinessWrapper<Boolean> wrapper = systemService.saveSystem(systemVO);
         if (wrapper.isSuccess()) {
             return new HttpResponse(wrapper.getBody());
         } else {
@@ -76,7 +50,7 @@ public class SystemController {
     @RESTfulDoc("获取系统列表")
     @RequestMapping(value = "/page", method = RequestMethod.GET)
     @ResponseBody
-    public HttpResponse<TablePageVO<List<SystemDO>>> getSystems(
+    public HttpResponse<TablePageVO<List<SystemVO>>> getSystems(
             @RequestParam String systemCode, @RequestParam int page, @RequestParam int length) {
         return new HttpResponse<>(systemService.getSystemPage(systemCode, page, length));
     }

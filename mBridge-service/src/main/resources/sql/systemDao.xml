@@ -2,32 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.feixue.mbridge.dao.SystemDao">
 
-    <!-- 获取指定系统的环境数目 -->
-    <select id="getServerEnvSize" parameterType="string" resultType="_long">
+    <!-- 获取指定系统的所有环境信息 -->
+    <select id="getSystemEnvList" parameterType="string" resultType="SystemEnvDO">
         SELECT
-          count(*)
+        *
         FROM
-          mbridge_env
-        <where>
-            <if test="systemCode != null and systemCode != ''">
-                AND systemCode LIKE "%" #{systemCode} "%"
-            </if>
-        </where>
-    </select>
-
-    <!-- 获取指定系统的环境信息 -->
-    <select id="getServerEnvPage" parameterType="object" resultType="SystemEnvDO">
-        SELECT
-          *
-        FROM
-          mbridge_env
-        <where>
-            <if test="systemCode != null and systemCode != ''">
-                AND systemCode LIKE "%" #{systemCode} "%"
-            </if>
-        </where>
+        mbridge_env
+        WHERE systemCode = #{systemCode}
         ORDER BY gmtCreate DESC
-        limit #{pageStart}, #{pageLength}
     </select>
 
     <!-- 添加指定系统的环境信息 -->
@@ -36,16 +18,19 @@
             systemCode,
             envName,
             envAddress
-        ) VALUES (
-            #{systemCode},
-            #{envName},
-            #{envAddress}
+        ) VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+        (
+            #{item.systemCode},
+            #{item.envName},
+            #{item.envAddress}
         )
+        </foreach>
     </insert>
 
     <!-- 删除指定系统的环境信息 -->
-    <delete id="delSystemEnv" parameterType="_long">
-        DELETE FROM mbridge_env WHERE id = #{id}
+    <delete id="delSystemEnv" parameterType="string">
+        DELETE FROM mbridge_env WHERE systemCode = #{systemCode}
     </delete>
 
     <!-- 更新指定系统的环境信息 -->
@@ -65,10 +50,12 @@
     <insert id="addSystem" parameterType="SystemDO">
         INSERT ignore INTO mbridge_system(
           systemName,
-          systemCode
+          systemCode,
+          principalUser
         ) VALUES (
           #{systemName},
-          #{systemCode}
+          #{systemCode},
+          #{principalUser}
         )
     </insert>
 
@@ -76,7 +63,8 @@
     <update id="updateSystem" parameterType="SystemDO">
         UPDATE mbridge_system
         SET
-          systemName = #{systemName}
+          systemName = #{systemName},
+          principalUser = #{principalUser}
         WHERE id = #{id}
     </update>
 

@@ -14,41 +14,25 @@ import java.util.List;
 public interface SystemDao {
 
     /**
-     * 获取指定系统的环境数目
+     * 获取指定系统的所有环境信息
      * @param systemCode
      * @return
      */
-    long getServerEnvSize(@Param("systemCode") String systemCode);
-
-    /**
-     * 获取指定系统的环境信息
-     * @param systemCode
-     * @return
-     */
-    List<SystemEnvDO> getServerEnvPage(
-            @Param("systemCode") String systemCode,
-            @Param("pageStart")long pageStart, @Param("pageLength") int pageLength);
+    List<SystemEnvDO> getSystemEnvList(@Param("systemCode") String systemCode);
 
     /**
      * 添加指定系统的环境信息
-     * @param systemEnvDO
+     * @param envList
      * @return
      */
-    boolean addServerEnv(SystemEnvDO systemEnvDO);
+    boolean addServerEnv(@Param("list")List<SystemEnvDO> envList);
 
     /**
      * 删除指定系统的环境信息
-     * @param id
+     * @param systemCode
      * @return
      */
-    boolean delSystemEnv(@Param("id") long id);
-
-    /**
-     * 更新指定系统的环境信息
-     * @param systemEnvDO
-     * @return
-     */
-    boolean updateServerEnv(SystemEnvDO systemEnvDO);
+    boolean delSystemEnv(@Param("systemCode") String systemCode);
 
     /**
      * 获取指定id的env信息

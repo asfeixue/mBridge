@@ -7,10 +7,14 @@ import com.feixue.mbridge.domain.system.SystemEnvDO;
 import com.feixue.mbridge.domain.TablePageVO;
 import com.feixue.mbridge.domain.system.SystemDO;
 import com.feixue.mbridge.domain.system.SystemEnvVO;
+import com.feixue.mbridge.domain.system.SystemVO;
 import com.feixue.mbridge.service.SystemService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -27,46 +31,8 @@ public class SystemServiceImpl implements SystemService {
     @Resource
     private SystemDao systemDao;
 
-    @Override
-    public TablePageVO<List<SystemEnvVO>> getSystemEnv(String systemCode, int page, int length) {
-        long size = systemDao.getServerEnvSize(systemCode);
-        List<SystemEnvDO> envDOList = systemDao.getServerEnvPage(systemCode, page * length, length);
-
-        List<SystemEnvVO> envVOList = new ArrayList<>();
-        for(SystemEnvDO envDO : envDOList) {
-            SystemDO systemDO = systemDao.querySystem(envDO.getSystemCode());
-
-            SystemEnvVO envVO = new SystemEnvVO(envDO, systemDO);
-            envVOList.add(envVO);
-        }
-
-        return new TablePageVO<>(envVOList, size);
-    }
-
-    @Override
-    public BusinessWrapper<Boolean> delSystemEnv(long id) {
-        boolean result = systemDao.delSystemEnv(id);
-        if (result) {
-            return new BusinessWrapper<>(true);
-        } else {
-            return new BusinessWrapper<>(false, ErrorCode.canNotDelSystemEnv);
-        }
-    }
-
-    @Override
-    public BusinessWrapper<Boolean> saveSystemEnv(SystemEnvDO systemEnvDO) {
-        try {
-            if (systemEnvDO.getId() == 0) {
-                systemDao.addServerEnv(systemEnvDO);
-            } else {
-                systemDao.updateServerEnv(systemEnvDO);
-            }
-            return new BusinessWrapper<>(true);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return new BusinessWrapper<>(ErrorCode.serviceFailure);
-        }
-    }
+    @Resource
+    private TransactionTemplate transactionTemplate;
 
     @Override
     public SystemEnvDO getEnvById(long id) {
@@ -74,17 +40,30 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public BusinessWrapper<Boolean> saveSystem(SystemDO systemDO) {
-        try {
-            if (systemDO.getId() == 0) {
-                systemDao.addSystem(systemDO);
-            } else {
-                systemDao.updateSystem(systemDO);
+    public BusinessWrapper<Boolean> saveSystem(final SystemVO systemVO) {
+        return transactionTemplate.execute(new TransactionCallback<BusinessWrapper<Boolean>>() {
+            @Override
+            public BusinessWrapper<Boolean> doInTransaction(TransactionStatus status) {
+                try {
+                    SystemDO systemDO = new SystemDO(systemVO);
+                    if (systemDO.getId() == 0) {
+                        systemDao.addSystem(systemDO);
+                    } else {
+                        systemDao.updateSystem(systemDO);
+                    }
+
+                    systemDao.delSystemEnv(systemDO.getSystemCode());
+                    if (systemVO.getEnvList() != null && !systemVO.getEnvList().isEmpty()) {
+                        systemDao.addServerEnv(systemVO.getEnvList());
+                    }
+
+                    return new BusinessWrapper<>(true);
+                } catch (Exception e) {
+                    status.setRollbackOnly();
+                    return new BusinessWrapper<>(ErrorCode.serviceFailure);
+                }
             }
-            return new BusinessWrapper<>(true);
-        } catch (Exception e) {
-            return new BusinessWrapper<>(ErrorCode.serviceFailure);
-        }
+        });
     }
 
 
@@ -114,11 +93,21 @@ public class SystemServiceImpl implements SystemService {
     }
 
     @Override
-    public TablePageVO<List<SystemDO>> getSystemPage(String systemCode, int page, int length) {
+    public TablePageVO<List<SystemVO>> getSystemPage(String systemCode, int page, int length) {
         List<SystemDO> systemDOList = systemDao.getSystemPage(systemCode, page * length, length);
         long size = systemDao.getSystemSize(systemCode);
 
-        return new TablePageVO(systemDOList, size);
+        List<SystemVO> systemVOList = new ArrayList<>();
+
+        for(SystemDO systemDO : systemDOList) {
+            List<SystemEnvDO> envList = systemDao.getSystemEnvList(systemDO.getSystemCode());
+
+            SystemVO systemVO = new SystemVO(systemDO, envList);
+
+            systemVOList.add(systemVO);
+        }
+
+        return new TablePageVO(systemVOList, size);
     }
 
     @Override

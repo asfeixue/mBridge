@@ -1,12 +1,13 @@
 package com.feixue.mbridge.domain.system;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * Created by zxxiao on 16/6/12.
+ * Created by zxxiao on 2017/4/26.
  */
-public class SystemDO implements Serializable {
-    private static final long serialVersionUID = 1992760778345790375L;
+public class SystemVO implements Serializable {
+    private static final long serialVersionUID = 3661797494366955411L;
 
     private long id;
 
@@ -35,19 +36,23 @@ public class SystemDO implements Serializable {
      */
     private String gmtModify;
 
-    public SystemDO() {}
+    /*
+    环境集合
+     */
+    private List<SystemEnvDO> envList;
 
-    public SystemDO(SystemVO systemVO) {
-        this.id = systemVO.getId();
-        this.systemName = systemVO.getSystemName();
-        this.systemCode = systemVO.getSystemCode();
-        this.principalUser = systemVO.getPrincipalUser();
-        this.gmtCreate = systemVO.getGmtCreate();
-        this.gmtModify = systemVO.getGmtModify();
+    public SystemVO() {
     }
 
-    public SystemDO(String systemCode) {
-        this.systemCode = systemCode;
+    public SystemVO(SystemDO systemDO, List<SystemEnvDO> envList) {
+        this.id = systemDO.getId();
+        this.systemName = systemDO.getSystemName();
+        this.systemCode = systemDO.getSystemCode();
+        this.principalUser = systemDO.getPrincipalUser();
+        this.gmtCreate = systemDO.getGmtCreate();
+        this.gmtModify = systemDO.getGmtModify();
+
+        this.envList = envList;
     }
 
     public long getId() {
@@ -96,5 +101,13 @@ public class SystemDO implements Serializable {
 
     public void setGmtModify(String gmtModify) {
         this.gmtModify = gmtModify;
+    }
+
+    public List<SystemEnvDO> getEnvList() {
+        return envList;
+    }
+
+    public void setEnvList(List<SystemEnvDO> envList) {
+        this.envList = envList;
     }
 }
