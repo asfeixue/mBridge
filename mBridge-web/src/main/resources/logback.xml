@@ -52,11 +52,11 @@
         <appender-ref ref="STDOUT-APPENDER"/>
     </logger>
 
-    <logger name="com.feixue.mbridge.controller" level="WARN">
+    <logger name="com.feixue.mbridge.controller" level="INFO">
         <appender-ref ref="STDOUT-APPENDER"/>
     </logger>
 
-    <logger name="com.feixue.mbridge.scan" level="WARN">
+    <logger name="com.feixue.mbridge.scan" level="INFO">
         <appender-ref ref="STDOUT-APPENDER"/>
     </logger>
 

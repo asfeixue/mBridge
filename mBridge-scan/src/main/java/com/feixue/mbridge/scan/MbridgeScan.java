@@ -490,7 +490,6 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
                 String fieldName = methodName.substring(3);
                 String fieldHeader = fieldName.substring(0, 1).toLowerCase();
                 fieldName = fieldHeader + fieldName.substring(1);
-                System.err.println(methodName + " - " +  fieldName);
 
                 structureMap.put(fieldName, "");
             }
@@ -560,6 +559,8 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
                                 SerializerFeature.WriteMapNullValue,
                                 SerializerFeature.WriteNonStringKeyAsString));
                 bufferedWriter.close();
+
+                logger.info("write protocol file for:" + file.getName() + " success!");
             }
         } catch (IOException e) {
             logger.error(e.getMessage(), e);

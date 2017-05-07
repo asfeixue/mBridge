@@ -10,3 +10,4 @@ mBridge-web/mBridge-web.iml
 mBridge-web/src/main/resources/server.properties
 mBridge.iml
 build/
+out/
