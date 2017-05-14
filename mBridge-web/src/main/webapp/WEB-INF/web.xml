@@ -18,7 +18,7 @@
     <context-param>
         <param-name>
             contextConfigLocation
-        </param-name>
+        </param-name>f
         <param-value>
             /WEB-INF/spring/*.xml
         </param-value>
@@ -66,5 +66,9 @@
     <servlet-mapping>
         <servlet-name>Spring-Dispatcher</servlet-name>
         <url-pattern>/</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Spring-Dispatcher</servlet-name>
+        <url-pattern>/fe</url-pattern>
     </servlet-mapping>
 </web-app>
