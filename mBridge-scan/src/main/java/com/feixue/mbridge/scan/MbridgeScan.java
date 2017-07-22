@@ -5,9 +5,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.feixue.mbridge.meta.annotation.RESTfulDoc;
 import com.feixue.mbridge.meta.domain.HttpProtocol;
 import com.feixue.mbridge.meta.domain.HttpProtocolContentType;
-import com.feixue.mbridge.meta.domain.HttpProtocolParam;
-import com.feixue.mbridge.meta.domain.HttpProtocolPath;
-import javassist.*;
+import javassist.ClassClassPath;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
@@ -22,7 +23,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import sun.reflect.generics.reflectiveObjects.TypeVariableImpl;
@@ -89,6 +89,8 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
                 String methodUrl = methodAnnotation.value()[0];
                 String requestUrl = clazzUrl + methodUrl;
                 protocol.setUrlPath(requestUrl);
+                //模糊化处理
+                protocol.setQueryUrlPath(requestUrl.replaceAll("\\{([a-zA-Z0-9_])+}", "{*}"));
 
                 //doc
                 setRESTFulDoc(method, protocol);
@@ -160,16 +162,16 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
                         continue;
                     }
                     protocol.setContentType(HttpProtocolContentType.form);
-                    buildFrom(parameterTypes[i], params[i], protocol);
+                    ProtocolScanBuilder.buildFrom(parameterTypes[i], params[i], protocol);
                 }
             } else {
                 for(Annotation annotation : paramterAnnotations) {
                     if (annotation instanceof RequestParam) {
-                        buildRequestParam(parameterTypes[i],
+                        ProtocolScanBuilder.buildRequestParam(parameterTypes[i],
                                 ((RequestParam) annotation).required(), params[i], protocol);
                         break;
                     } else if (annotation instanceof PathVariable) {
-                        buildPathVariable(i, parameterTypes[i], params[i], protocol);
+                        ProtocolScanBuilder.buildPathVariable(i, parameterTypes[i], params[i], protocol);
                         break;
                     } else if (annotation instanceof RequestBody) {
                         //语义存在争议
@@ -178,7 +180,7 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
                             continue;
                         }
                         protocol.setContentType(HttpProtocolContentType.json);
-                        buildRequestBody(parameterTypes[i], protocol);
+                        ProtocolScanBuilder.buildRequestBody(parameterTypes[i], protocol);
                         break;
                     } else {
                         //TODO 其他注解需要能够协同工作才会支持
@@ -198,7 +200,7 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
     private void setResponseDefault(HttpProtocol protocol, Method method) throws Exception {
         Type type = method.getGenericReturnType();
         if (type instanceof Class) {
-            buildResponseWithClass(protocol, method);
+            ProtocolScanBuilder.buildResponseBody(protocol, method);
         } else if (type instanceof ParameterizedTypeImpl) {
             ParameterizedTypeImpl returnType = (ParameterizedTypeImpl)type;
 
@@ -267,235 +269,6 @@ public class MbridgeScan implements InitializingBean, EnvironmentAware {
                 logger.warn("type " + methodParameterType + " not have default Constructor method!");
             }
         }
-    }
-
-    /**
-     * 基于无泛型的原始类型构建标准响应结构
-     * @param protocol
-     * @param method
-     */
-    private void buildResponseWithClass(HttpProtocol protocol, Method method) {
-        Class clazz = method.getReturnType();
-        String clazzName = clazz.getSimpleName();
-        if (clazz.isInterface()) {
-            if (clazzName.equalsIgnoreCase("map")) {
-                protocol.setResponseBody(new HashMap<>());
-            } else if (clazzName.equalsIgnoreCase("set")) {
-                protocol.setResponseBody(new HashSet<>());
-            } else if (clazzName.equalsIgnoreCase("list")) {
-                protocol.setResponseBody(new ArrayList<>());
-            } else {    //默认填充对象
-                protocol.setResponseBody(new HashMap<>());
-            }
-        } else {
-            if (clazzName.equalsIgnoreCase("void")) {
-                //ignore
-                return;
-            }
-            Object clazzObj = null;
-            try {
-                clazzObj = clazz.newInstance();
-            } catch (Exception e) {
-                logger.warn(e.getMessage() + ", class " + clazz.getName() + " don't have Constructor method!");
-            }
-
-            if (clazzObj instanceof Map) {
-                protocol.setResponseBody(new HashMap<>());
-            } else if (clazzObj instanceof Set) {
-                protocol.setResponseBody(new HashSet<>());
-            } else if (clazzObj instanceof List) {
-                protocol.setResponseBody(new ArrayList<>());
-            } else {
-                protocol.setResponseBody(clazzObj);
-            }
-        }
-    }
-
-    /**
-     * 构建表单
-     * @param paramClass
-     * @param paramName
-     * @param protocol
-     * @throws Exception
-     */
-    private void buildFrom(Class paramClass, String paramName, HttpProtocol protocol) throws Exception {
-        Object requestBody = protocol.getRequestBody();
-        Map<String, Object> fromMap = new HashMap<>();
-        List<Map<String, Object>> fromList = new ArrayList<>();
-        if (requestBody == null) {
-            protocol.setRequestBody(fromList);
-        } else {
-            fromList = (List<Map<String, Object>>) requestBody;
-        }
-        fromList.add(fromMap);
-        setParamDefault(paramName, fromMap, paramClass);
-    }
-
-    /**
-     * 构建JSON请求报文
-     * @param paramClass
-     * @param protocol
-     * @throws Exception
-     */
-    private void buildRequestBody(Class paramClass, HttpProtocol protocol) throws Exception {
-        protocol.setRequestBody(setRequestDefault(paramClass));
-    }
-
-    /**
-     * 构建路径参数
-     * @param index
-     * @param paramClazz
-     * @param paramName
-     * @param protocol
-     */
-    private void buildPathVariable(int index, Class paramClazz, String paramName, HttpProtocol protocol) throws Exception {
-        HttpProtocolPath protocolPath = new HttpProtocolPath(index, paramName, getDefaultValue(paramClazz, paramName));
-        if (protocol.getPathList() == null) {
-            protocol.setPathList(new ArrayList<HttpProtocolPath>());
-        }
-        protocol.getPathList().add(protocolPath);
-    }
-
-    /**
-     * 构建请求参数
-     * @param paramClazz
-     * @param required
-     * @param paramName
-     * @param protocol
-     * @throws Exception
-     */
-    private void buildRequestParam(Class paramClazz, boolean required, String paramName, HttpProtocol protocol) throws Exception {
-        if (paramClazz.isInterface()) { //参数为接口，不做具体实现
-            return;
-        }
-        HttpProtocolParam protocolParam = new HttpProtocolParam(paramName, getDefaultValue(paramClazz, paramName), required);
-        if (protocol.getParamList() == null) {
-            protocol.setParamList(new ArrayList<HttpProtocolParam>());
-        }
-        protocol.getParamList().add(protocolParam);
-    }
-
-    private Object getDefaultValue(Class param, String name) throws Exception {
-        String paramName = param.getSimpleName();
-        if (paramName.equalsIgnoreCase("int")
-                || paramName.equalsIgnoreCase(Integer.class.getSimpleName())) {
-            return 0;
-        } else if (paramName.equalsIgnoreCase("long")
-                || paramName.equalsIgnoreCase(Long.class.getSimpleName())) {
-            return 0;
-        } else if (paramName.equalsIgnoreCase(String.class.getSimpleName())) {
-            return name;
-        } else if (paramName.equalsIgnoreCase("float")
-                || paramName.equalsIgnoreCase(Float.class.getSimpleName())) {
-            return 0;
-        } else if (paramName.equalsIgnoreCase("double")
-                || paramName.equalsIgnoreCase(Double.class.getSimpleName())) {
-            return 0;
-        } else if (paramName.equalsIgnoreCase("char")) {
-            return "";
-        } else if (paramName.equalsIgnoreCase("map")) {
-            return new HashMap<>();
-        } else if (paramName.equalsIgnoreCase("set")) {
-            return new HashSet<>();
-        } else {
-            return JSON.parseObject(
-                    JSON.toJSONString(param.newInstance(),
-                        SerializerFeature.WriteNullListAsEmpty,
-                        SerializerFeature.WriteNullBooleanAsFalse,
-                        SerializerFeature.WriteNullNumberAsZero,
-                        SerializerFeature.WriteNullStringAsEmpty,
-                        SerializerFeature.WriteMapNullValue), Map.class);
-        }
-    }
-
-    /**
-     * 填充参数默认值
-     * @param name
-     * @param from
-     * @param param
-     * @throws Exception
-     */
-    private void setParamDefault(String name, Map<String, Object> from, Class param) throws Exception {
-        String paramName = param.getSimpleName();
-        if (paramName.equalsIgnoreCase("int")
-                || paramName.equalsIgnoreCase(Integer.class.getSimpleName())) {
-            from.put("name", name);
-            from.put("value", 0);
-        } else if (paramName.equalsIgnoreCase("long")
-                || paramName.equalsIgnoreCase(Long.class.getSimpleName())) {
-            from.put("name", name);
-            from.put("value", 0);
-        } else if (paramName.equalsIgnoreCase(String.class.getSimpleName())) {
-            from.put("name", name);
-            from.put("value", "");
-        } else if (paramName.equalsIgnoreCase("float")
-                || paramName.equalsIgnoreCase(Float.class.getSimpleName())) {
-            from.put("name", name);
-            from.put("value", 0);
-        } else if (paramName.equalsIgnoreCase("double")
-                || paramName.equalsIgnoreCase(Double.class.getSimpleName())) {
-            from.put("name", name);
-            from.put("value", 0);
-        } else if (paramName.equalsIgnoreCase("char")) {
-            from.put("name", name);
-            from.put("value", "");
-        } else if (paramName.equalsIgnoreCase("map")
-                || paramName.equalsIgnoreCase("set")) {
-            //ignore
-        } else if (paramName.equalsIgnoreCase("list")) {
-            //ignore
-        } else {
-            from.putAll(JSON.parseObject(
-                    JSON.toJSONString(param.newInstance(),
-                            SerializerFeature.WriteNullListAsEmpty,
-                            SerializerFeature.WriteNullBooleanAsFalse,
-                            SerializerFeature.WriteNullNumberAsZero,
-                            SerializerFeature.WriteNullStringAsEmpty,
-                            SerializerFeature.WriteMapNullValue), Map.class));
-        }
-    }
-
-    /**
-     * 填充参数默认值
-     * @param param
-     * @throws Exception
-     */
-    private Object setRequestDefault(Class param) throws Exception {
-        if (param.isInterface()) {
-            String paramName = param.getSimpleName();
-            if (paramName.equalsIgnoreCase("map")) {
-                return new HashMap<>();
-            } else if (paramName.equalsIgnoreCase("set")) {
-                return new HashSet<>();
-            } else if (paramName.equalsIgnoreCase("list")) {
-                return new ArrayList<>();
-            }
-        } else {
-            try {
-                buildStructure(param);
-                return param.newInstance();
-            } catch (Exception e) {
-                logger.error("instance " + param + " error! no default Constructor method for " + param);
-            }
-        }
-
-        return new Object();
-    }
-
-    private Map<String, Object> buildStructure(Class clazz) {
-        Map<String, Object> structureMap = new HashMap<>();
-        for(Method method : clazz.getMethods()) {
-            String methodName = method.getName();
-            if (methodName.startsWith("get") && Modifier.isPublic(method.getModifiers()) && !Modifier.isNative(method.getModifiers())) {
-                String fieldName = methodName.substring(3);
-                String fieldHeader = fieldName.substring(0, 1).toLowerCase();
-                fieldName = fieldHeader + fieldName.substring(1);
-
-                structureMap.put(fieldName, "");
-            }
-        }
-
-        return null;
     }
 
     /**

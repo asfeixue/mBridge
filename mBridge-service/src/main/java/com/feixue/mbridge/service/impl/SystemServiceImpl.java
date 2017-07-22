@@ -1,5 +1,6 @@
 package com.feixue.mbridge.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.feixue.mbridge.dao.SystemDao;
 import com.feixue.mbridge.domain.BusinessWrapper;
 import com.feixue.mbridge.domain.ErrorCode;
@@ -54,11 +55,12 @@ public class SystemServiceImpl implements SystemService {
 
                     systemDao.delSystemEnv(systemDO.getSystemCode());
                     if (systemVO.getEnvList() != null && !systemVO.getEnvList().isEmpty()) {
-                        systemDao.addServerEnv(systemVO.getEnvList());
+                        systemDao.addServerEnv(systemVO.getEnvList(), systemVO.getSystemCode());
                     }
 
                     return new BusinessWrapper<>(true);
                 } catch (Exception e) {
+                    logger.error("save system error, content={}", JSON.toJSONString(systemVO), e);
                     status.setRollbackOnly();
                     return new BusinessWrapper<>(ErrorCode.serviceFailure);
                 }

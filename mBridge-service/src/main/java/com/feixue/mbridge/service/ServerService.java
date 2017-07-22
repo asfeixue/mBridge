@@ -33,18 +33,4 @@ public interface ServerService {
      * @return
      */
     BusinessWrapper<Boolean> delServer(long serverId);
-
-    /**
-     * 启动指定的mock server
-     * @param serverId
-     * @return
-     */
-    BusinessWrapper<Boolean> startServer(long serverId);
-
-    /**
-     * 停止指定的mock server
-     * @param serverId
-     * @return
-     */
-    BusinessWrapper<Boolean> stopServer(long serverId);
 }

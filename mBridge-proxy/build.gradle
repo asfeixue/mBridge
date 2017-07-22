@@ -1,0 +1,6 @@
+dependencies {
+    compile project(":mBridge-util")
+    compile project(":mBridge-domain")
+
+    compile group: 'io.netty', name: 'netty-all', version: '4.1.10.Final'
+}

@@ -26,6 +26,11 @@ public class HttpProtocolVO implements Serializable {
     private long id;
 
     /*
+    索引以及搜索用
+     */
+    private String queryUrlPath;
+
+    /*
     URL地址
      */
     private String urlPath;
@@ -139,6 +144,14 @@ public class HttpProtocolVO implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getQueryUrlPath() {
+        return queryUrlPath;
+    }
+
+    public void setQueryUrlPath(String queryUrlPath) {
+        this.queryUrlPath = queryUrlPath;
     }
 
     public String getUrlPath() {
@@ -280,27 +293,5 @@ public class HttpProtocolVO implements Serializable {
             requestUrl = requestUrl.substring(0, requestUrl.length() - 1);
         }
         return requestUrl;
-    }
-
-    @Override
-    public String toString() {
-        return "HttpProtocolVO{" +
-                "id=" + id +
-                ", urlPath='" + urlPath + '\'' +
-                ", host='" + host + '\'' +
-                ", urlDesc='" + urlDesc + '\'' +
-                ", contentType='" + contentType + '\'' +
-                ", paramList=" + paramList +
-                ", pathList=" + pathList +
-                ", requestType='" + requestType + '\'' +
-                ", requestBody=" + requestBody +
-                ", responseBody=" + responseBody +
-                ", requestHeader=" + requestHeader +
-                ", requestHeaderSubscribe=" + requestHeaderSubscribe +
-                ", responseHeader=" + responseHeader +
-                ", responseHeaderSubscribe=" + responseHeaderSubscribe +
-                ", system=" + system +
-                ", dispute=" + dispute +
-                '}';
     }
 }

@@ -1,4 +1,4 @@
-package com.feixue.mbridge.controller;
+package com.feixue.mbridge.controller.http;
 
 import com.feixue.mbridge.meta.annotation.RESTfulDoc;
 import com.feixue.mbridge.domain.ErrorCode;

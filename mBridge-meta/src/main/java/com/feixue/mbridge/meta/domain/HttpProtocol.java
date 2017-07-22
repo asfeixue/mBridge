@@ -12,6 +12,11 @@ public class HttpProtocol implements Serializable {
     private static final long serialVersionUID = 7320179040834281921L;
 
     /*
+    索引以及搜索用
+     */
+    private String queryUrlPath;
+
+    /*
     URL地址
      */
     private String urlPath;
@@ -62,6 +67,14 @@ public class HttpProtocol implements Serializable {
     private boolean dispute;
 
     public HttpProtocol() {
+    }
+
+    public String getQueryUrlPath() {
+        return queryUrlPath;
+    }
+
+    public void setQueryUrlPath(String queryUrlPath) {
+        this.queryUrlPath = queryUrlPath;
     }
 
     public String getUrlPath() {
@@ -146,21 +159,5 @@ public class HttpProtocol implements Serializable {
 
     public void setDispute(boolean dispute) {
         this.dispute = dispute;
-    }
-
-    @Override
-    public String toString() {
-        return "HttpProtocol{" +
-                "urlPath='" + urlPath + '\'' +
-                ", urlDesc='" + urlDesc + '\'' +
-                ", contentType='" + contentType + '\'' +
-                ", paramList=" + paramList +
-                ", pathList=" + pathList +
-                ", requestTypeSet=" + requestTypeSet +
-                ", requestBody=" + requestBody +
-                ", responseBody=" + responseBody +
-                ", systemCode='" + systemCode + '\'' +
-                ", dispute=" + dispute +
-                '}';
     }
 }

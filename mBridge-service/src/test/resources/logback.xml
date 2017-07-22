@@ -1,0 +1,70 @@
+<!-- debug="true"会将log框架本身的调试信息打印出来   -->
+<configuration debug="false" scan="true" scanPeriod="10 seconds">
+    <!--
+    As of version 0.9.25, logback-classic ships with LevelChangePropagator, an implementation of LoggerContextListener
+    which propagates changes made to the level of any logback-classic logger onto the java.util.logging framework.
+    Such propagation eliminates the performance impact of disabled log statements. Instances of LogRecord will be sent
+    to logback (via SLF4J) only for enabled log statements. This makes it reasonable for real-world applications to use
+    the jul-to-slf4j bridge.
+    -->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
+
+    <appender name="INFO-FILE-APPENDER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>../logs/mBridge-info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>3</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
+            </pattern>
+        </encoder>
+
+        <!-- 仅输出 比INFO级别高的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <appender name="STDOUT-APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d{yyyyMMdd-HH:mm:ss.SSSZ}|%contextName|%thread|%-5level|%logger|%msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.alibaba" level="INFO">
+        <appender-ref ref="STDOUT-APPENDER" />
+    </logger>
+
+    <logger name="com.feixue.mbridge.dao" level="TRACE">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="com.feixue.mbridge.resolver" level="ERROR">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="com.feixue.mbridge.proxy" level="INFO">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="com.feixue.mbridge.service" level="ERROR">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="com.feixue.mbridge.controller" level="INFO">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="com.feixue.mbridge.scan" level="INFO">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="org.springframework" level="INFO">
+        <appender-ref ref="STDOUT-APPENDER"/>
+    </logger>
+
+    <logger name="org" level="WARN">
+        <appender-ref ref="STDOUT-APPENDER" />
+    </logger>
+</configuration>

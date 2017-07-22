@@ -5,3 +5,5 @@ include 'mBridge-domain'
 include 'mBridge-service'
 include 'mBridge-web'
 include 'mBridge-util'
+include 'mBridge-proxy'
+

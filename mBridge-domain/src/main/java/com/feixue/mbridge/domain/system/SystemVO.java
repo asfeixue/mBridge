@@ -26,6 +26,16 @@ public class SystemVO implements Serializable {
      */
     private String principalUser;
 
+    /**
+     * 根路径
+     */
+    private String rootPath;
+
+    /**
+     * 处理端口
+     */
+    private int processPort;
+
     /*
     创建时间
      */
@@ -49,6 +59,8 @@ public class SystemVO implements Serializable {
         this.systemName = systemDO.getSystemName();
         this.systemCode = systemDO.getSystemCode();
         this.principalUser = systemDO.getPrincipalUser();
+        this.rootPath = systemDO.getRootPath();
+        this.processPort = systemDO.getProcessPort();
         this.gmtCreate = systemDO.getGmtCreate();
         this.gmtModify = systemDO.getGmtModify();
 
@@ -85,6 +97,22 @@ public class SystemVO implements Serializable {
 
     public void setPrincipalUser(String principalUser) {
         this.principalUser = principalUser;
+    }
+
+    public String getRootPath() {
+        return rootPath;
+    }
+
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
+    }
+
+    public int getProcessPort() {
+        return processPort;
+    }
+
+    public void setProcessPort(int processPort) {
+        this.processPort = processPort;
     }
 
     public String getGmtCreate() {

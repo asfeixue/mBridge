@@ -14,6 +14,11 @@ public class HttpProtocolDO implements Serializable {
     private long id;
 
     /*
+    索引以及搜索用
+     */
+    private String queryUrlPath;
+
+    /*
     URL地址
      */
     private String urlPath;
@@ -123,6 +128,14 @@ public class HttpProtocolDO implements Serializable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public String getQueryUrlPath() {
+        return queryUrlPath;
+    }
+
+    public void setQueryUrlPath(String queryUrlPath) {
+        this.queryUrlPath = queryUrlPath;
     }
 
     public String getUrlPath() {
@@ -235,26 +248,5 @@ public class HttpProtocolDO implements Serializable {
 
     public void setDispute(boolean dispute) {
         this.dispute = dispute;
-    }
-
-    @Override
-    public String toString() {
-        return "HttpProtocolDO{" +
-                "id=" + id +
-                ", urlPath='" + urlPath + '\'' +
-                ", urlDesc='" + urlDesc + '\'' +
-                ", contentType='" + contentType + '\'' +
-                ", paramList='" + paramList + '\'' +
-                ", pathList='" + pathList + '\'' +
-                ", requestType='" + requestType + '\'' +
-                ", requestBody='" + requestBody + '\'' +
-                ", responseBody='" + responseBody + '\'' +
-                ", requestHeader='" + requestHeader + '\'' +
-                ", requestHeaderSubscribe=" + requestHeaderSubscribe +
-                ", responseHeader='" + responseHeader + '\'' +
-                ", responseHeaderSubscribe=" + responseHeaderSubscribe +
-                ", systemCode='" + systemCode + '\'' +
-                ", dispute=" + dispute +
-                '}';
     }
 }

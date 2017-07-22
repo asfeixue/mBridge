@@ -11,6 +11,5 @@ mBridge-web/src/main/resources/server.properties
 mBridge.iml
 build/
 out/
-
 /mBridge-web/src/main/webapp/fe/
 npm-debug.log

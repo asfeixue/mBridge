@@ -23,9 +23,10 @@ public interface SystemDao {
     /**
      * 添加指定系统的环境信息
      * @param envList
+     * @param systemCode
      * @return
      */
-    boolean addServerEnv(@Param("list")List<SystemEnvDO> envList);
+    boolean addServerEnv(@Param("list")List<SystemEnvDO> envList, @Param("systemCode") String systemCode);
 
     /**
      * 删除指定系统的环境信息

@@ -1,6 +1,7 @@
 dependencies {
     compile project(":mBridge-util")
     compile project(":mBridge-domain")
+    compile project(":mBridge-proxy")
 
     compile "com.alibaba:druid:${druidVersion}"
     compile "mysql:mysql-connector-java:${mysqlVersion}"

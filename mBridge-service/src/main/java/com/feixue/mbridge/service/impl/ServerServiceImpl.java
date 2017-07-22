@@ -7,14 +7,11 @@ import com.feixue.mbridge.domain.TablePageVO;
 import com.feixue.mbridge.domain.server.ServerDO;
 import com.feixue.mbridge.domain.server.ServerVO;
 import com.feixue.mbridge.domain.system.SystemDO;
-import com.feixue.mbridge.endpoint.ServerProxy;
 import com.feixue.mbridge.service.ServerService;
 import com.feixue.mbridge.service.SystemService;
 import com.feixue.mbridge.util.IPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,7 +22,7 @@ import java.util.List;
  * Created by zxxiao on 16/9/30.
  */
 @Service
-public class ServerServiceImpl implements ServerService, InitializingBean, DisposableBean {
+public class ServerServiceImpl implements ServerService {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerServiceImpl.class);
 
@@ -34,9 +31,6 @@ public class ServerServiceImpl implements ServerService, InitializingBean, Dispo
 
     @Resource
     private SystemService systemService;
-
-    @Resource
-    private ServerProxy serverProxy;
 
     @Override
     public TablePageVO<List<ServerVO>> queryServer(String systemCode, int page, int length) {
@@ -78,102 +72,6 @@ public class ServerServiceImpl implements ServerService, InitializingBean, Dispo
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return new BusinessWrapper<>(ErrorCode.serviceFailure);
-        }
-    }
-
-    @Override
-    public BusinessWrapper<Boolean> startServer(long serverId) {
-        ServerDO serverDO = serverDao.queryServerById(serverId);
-        if (serverDO == null) {
-            return new BusinessWrapper<>(ErrorCode.serverNotExist);
-        }
-        if (serverDO.getServerStatus() == ServerDO.ServerStatusEnum.statusStart.getCode()) {
-            return new BusinessWrapper<>(true);
-        }
-
-        BusinessWrapper<Boolean> wrapper = serverProxy.startServer(serverDO);
-        if (wrapper.isSuccess()) {
-            serverDO.setServerStatus(ServerDO.ServerStatusEnum.statusStart.getCode());
-            serverDO.setServerMsg("启动成功!");
-        } else {
-            serverDO.setServerMsg(wrapper.getMsg());
-        }
-
-        serverDao.updateServer(serverDO);
-
-        return wrapper;
-    }
-
-    @Override
-    public BusinessWrapper<Boolean> stopServer(long serverId) {
-        ServerDO serverDO = serverDao.queryServerById(serverId);
-        if (serverDO == null) {
-            return new BusinessWrapper<>(ErrorCode.serverNotExist);
-        }
-        if (serverDO.getServerStatus() == ServerDO.ServerStatusEnum.statusStop.getCode()) {
-            return new BusinessWrapper<>(true);
-        }
-
-        BusinessWrapper<Boolean> wrapper = serverProxy.stopServer(serverDO);
-        if (wrapper.isSuccess()) {
-            serverDO.setServerStatus(ServerDO.ServerStatusEnum.statusStop.getCode());
-            serverDO.setServerMsg("停止成功!");
-        } else {
-            serverDO.setServerMsg(wrapper.getMsg());
-        }
-
-        serverDao.updateServer(serverDO);
-
-        return wrapper;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        long size = serverDao.queryServerSize("");
-        int length = 10;
-        int page = 0;
-
-        for(int i = 0; i < (size / length + (size % length == 0 ? 0 : 1)); i++) {
-            List<ServerDO> serverDOList = serverDao.queryServerPage("", page * length, length);
-            for(ServerDO serverDO : serverDOList) {
-                if (serverDO.getServerStatus() == ServerDO.ServerStatusEnum.statusStop.getCode()) {
-                    continue;
-                }
-                BusinessWrapper<Boolean> wrapper = serverProxy.startServer(serverDO);
-                if (wrapper.isSuccess()) {
-                    serverDO.setServerStatus(ServerDO.ServerStatusEnum.statusStart.getCode());
-                    serverDO.setServerMsg("启动成功!");
-                } else {
-                    serverDO.setServerMsg(wrapper.getMsg());
-                }
-
-                serverDao.updateServer(serverDO);
-            }
-        }
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        long size = serverDao.queryServerSize("");
-        int length = 10;
-        int page = 0;
-
-        for(int i = 0; i < (size / length + (size % length == 0 ? 0 : 1)); i++) {
-            List<ServerDO> serverDOList = serverDao.queryServerPage("", page * length, length);
-            for(ServerDO serverDO : serverDOList) {
-                if (serverDO.getServerStatus() == ServerDO.ServerStatusEnum.statusStop.getCode()) {
-                    continue;
-                }
-                BusinessWrapper<Boolean> wrapper = serverProxy.stopServer(serverDO);
-                if (wrapper.isSuccess()) {
-                    serverDO.setServerStatus(ServerDO.ServerStatusEnum.statusStop.getCode());
-                    serverDO.setServerMsg("停止成功!");
-                } else {
-                    serverDO.setServerMsg(wrapper.getMsg());
-                }
-
-                serverDao.updateServer(serverDO);
-            }
         }
     }
 }

@@ -13,7 +13,7 @@
     </select>
 
     <!-- 添加指定系统的环境信息 -->
-    <insert id="addServerEnv" parameterType="SystemEnvDO">
+    <insert id="addServerEnv" parameterType="object">
         INSERT INTO mbridge_env (
             systemCode,
             envName,
@@ -21,7 +21,7 @@
         ) VALUES
         <foreach item="item" index="index" collection="list" separator=",">
         (
-            #{item.systemCode},
+            #{systemCode},
             #{item.envName},
             #{item.envAddress}
         )
@@ -51,11 +51,15 @@
         INSERT ignore INTO mbridge_system(
           systemName,
           systemCode,
-          principalUser
+          principalUser,
+          rootPath,
+          processPort
         ) VALUES (
           #{systemName},
           #{systemCode},
-          #{principalUser}
+          #{principalUser},
+          #{rootPath},
+          #{processPort}
         )
     </insert>
 
@@ -64,7 +68,9 @@
         UPDATE mbridge_system
         SET
           systemName = #{systemName},
-          principalUser = #{principalUser}
+          principalUser = #{principalUser},
+          rootPath = {rootPath},
+          processPort = #{processPort}
         WHERE id = #{id}
     </update>
 

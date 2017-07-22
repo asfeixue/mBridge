@@ -25,6 +25,9 @@ public class BusinessWrapper<T> implements Serializable {
 
     private boolean success;
 
+    public BusinessWrapper() {
+    }
+
     public BusinessWrapper(T body) {
         this.body = body;
         this.success = true;

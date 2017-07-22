@@ -12,6 +12,7 @@
     <!-- 保存协议 -->
     <insert id="addProtocol" parameterType="HttpProtocolDO" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
         INSERT IGNORE INTO mbridge_protocol (
+          queryUrlPath,
           urlPath,
           urlDesc,
           contentType,
@@ -27,6 +28,7 @@
           systemCode,
           dispute
         ) VALUES (
+          #{queryUrlPath},
           #{urlPath},
           #{urlDesc},
           #{contentType},
@@ -47,6 +49,7 @@
     <!-- 更新指定id的协议信息 -->
     <update id="updateProtocol" parameterType="HttpProtocolDO">
         UPDATE mbridge_protocol SET
+          queryUrlPath = #{queryUrlPath},
           urlPath = #{urlPath},
           urlDesc = #{urlDesc},
           contentType = #{contentType},

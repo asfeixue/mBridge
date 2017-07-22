@@ -50,28 +50,4 @@ public class ServerController {
             return new HttpResponse(wrapper.getCode(), wrapper.getMsg());
         }
     }
-
-    @RESTfulDoc("启动指定的mock server")
-    @RequestMapping(value = "/start", method = RequestMethod.POST)
-    @ResponseBody
-    public HttpResponse startServer(@RequestParam long serverId) {
-        BusinessWrapper<Boolean> wrapper = serverService.startServer(serverId);
-        if (wrapper.isSuccess()) {
-            return new HttpResponse(wrapper.getBody());
-        } else {
-            return new HttpResponse(wrapper.getCode(), wrapper.getMsg());
-        }
-    }
-
-    @RESTfulDoc("关闭指定的mock server")
-    @RequestMapping(value = "/stop", method = RequestMethod.POST)
-    @ResponseBody
-    public HttpResponse stopServer(@RequestParam long serverId) {
-        BusinessWrapper<Boolean> wrapper = serverService.stopServer(serverId);
-        if (wrapper.isSuccess()) {
-            return new HttpResponse(wrapper.getBody());
-        } else {
-            return new HttpResponse(wrapper.getCode(), wrapper.getMsg());
-        }
-    }
 }
