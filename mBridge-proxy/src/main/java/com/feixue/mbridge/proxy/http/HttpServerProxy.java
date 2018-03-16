@@ -2,6 +2,7 @@ package com.feixue.mbridge.proxy.http;
 
 import com.feixue.mbridge.proxy.CallbackNotifyChain;
 import com.feixue.mbridge.proxy.ServerProxy;
+import com.feixue.mbridge.proxy.http.network.HttpServerChannelHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -48,7 +49,7 @@ public class HttpServerProxy<HttpProxyContent, BusinessWrapper> implements Serve
                             ch.pipeline().addLast(new HttpServerCodec());
                             ch.pipeline().addLast("http-aggregator", new HttpObjectAggregator(Integer.MAX_VALUE));
                             ch.pipeline().addLast(new HttpServerExpectContinueHandler());
-                            ch.pipeline().addLast("server-channel", new HttpServerChannelHandler(notifyChain));
+                            ch.pipeline().addLast("server-channel", new HttpServerChannelHandler());
                         }
                     });
             bootstrap.bind(port).sync().channel().closeFuture().sync();
